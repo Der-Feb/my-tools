@@ -1,0 +1,22 @@
+# Python virtual environment
+venv/
+.venv/
+env/
+
+# Python bytecode (compiled files)
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# QR Codes and generated assets
+*.png
+*.jpg
+*.jpeg
+
+# Local environment variables (if you ever add them)
+.env
+
+# Editor specific files
+.vscode/
+.idea/
