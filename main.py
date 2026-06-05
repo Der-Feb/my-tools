@@ -2,6 +2,8 @@ import click
 from modules import crypto, media, runner, utils
 from tabulate import tabulate
 from datetime import datetime
+from PIL import Image
+from pyzbar.pyzbar import decode
 
 @click.group()
 def cli():
@@ -49,14 +51,31 @@ def qr_show(data):
     media.show_qr_in_terminal(data)
 
 @cli.command()
+@click.argument('image_path', type=click.Path(exists=True))
+def qr_parse(image_path):
+    """Parses/Scans a QR code image file and extracts its data"""
+    click.echo(f"Scanning {image_path}...")
+    
+    # Call the logic from your media module
+    result = media.parse_qr_code(image_path)
+    
+    if result["success"]:
+        click.secho("\n🎉 Success! Decoded Content:", fg='green', bold=True)
+        # Highlight it so it stands out in the terminal
+        click.secho(result["data"], fg='cyan', underline=True)
+    else:
+        click.secho(result["message"], fg='red')
+
+@cli.command()
 def menu():
     """Custom help menu with a clean table"""
     table_data = [
         ["tool uuid", "Generates a unique UUID v4 string.", "tool uuid"],
         ["tool qr-show", "Displays a QR code in the terminal.", "tool qr-show \"https://google.com\""],
         ["tool qr", "Generates a QR code and saves a file.", "tool qr \"data\" \"my_code.png\""],
+        ["tool qr-parse", "Scans an image file and extracts data.", "tool qr-parse \"my_code.png\""], # New Row
         ["tool jwt-parse", "Decodes a JWT token string.", "tool jwt-parse <your_token>"],
-        ["tool time", "Parse TS / Gen Now (-g) / Convert Date (-c)", "tool time -g"], # Updated this line
+        ["tool time", "Parse TS / Gen Now (-g) / Convert Date (-c)", "tool time -g"],
         ["tool run-all", "Runs multiple Python files concurrently.", "tool run-all script1.py script2.py"],
         ["tool menu", "Shows this help table.", "tool menu"]
     ]
