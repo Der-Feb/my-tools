@@ -1,0 +1,10 @@
+click
+qrcode[pil]
+PyJWT
+tabulate
+dateparser
+pyzbar
+Pillow
+docx2pdf
+validators
+comtypes
