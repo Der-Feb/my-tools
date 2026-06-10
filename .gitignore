@@ -15,9 +15,9 @@ __pycache__/
 *.jpeg
 
 # Local environment variables (if you ever add them)
-.env
 
 # Editor specific files
-.vscode/
 .idea/
 test/
+config.bat
+node_modules
