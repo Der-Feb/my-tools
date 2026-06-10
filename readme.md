@@ -1,65 +1,79 @@
-Here is a complete **README.md** for your project. You can save this file inside your `dev-tools` folder so you always have a reference for how your CLI works.
+# 🛠️ Ultimate Dev Toolbox
+
+A powerful, modular Python CLI designed for developers. Handle QR codes, JWTs, timestamps, and file conversions with ease.
 
 ---
 
-# 🛠️ Ultimate Dev Toolbox (CLI)
+## 🚀 Installation & Setup
 
-A modular, isolated Python Command Line Interface for common developer tasks.
-
-## 🚀 Setup & Installation
-
-### 1. Initialize the Environment
-Navigate to the project folder and run:
+### 1. Initialize Virtual Environment
 ```bash
 python -m venv venv
-source venv/Scripts/activate  # For Git Bash/Windows
-pip install click qrcode[pil] PyJWT
+source venv/Scripts/activate
+pip install -r requirements.txt
 ```
 
-### 2. Configure the Shortcut (Alias)
-Add this to your `~/.bash_profile` to run the tool from anywhere:
+### 2. Configure Global Access
+Add this alias to your `~/.bashrc` or `~/.bash_profile` to use the tool from any directory:
 ```bash
-alias tool='"/d/proj/dev-tools/venv/Scripts/python.exe" "/d/proj/dev-tools/main.py"'
+alias tool='python d:/proj/my-tools/main.py'
 ```
-Then refresh: `source ~/.bash_profile`
 
 ---
 
-## 📖 Commands & Usage
+## 📖 Command Reference
 
-| Command | Description | Example Usage |
-| :--- | :--- | :--- |
-| `tool uuid` | Generates a unique UUID v4 string. | `tool uuid` |
-| `tool qr-show` | Displays a QR code **directly in the terminal**. | `tool qr-show "https://google.com"` |
-| `tool qr` | Generates a QR code and **saves it as a file**. | `tool qr "data" "my_code.png"` |
-| `tool jwt-parse` | Decodes a JWT token string (unverified). | `tool jwt-parse <your_token>` |
-| `tool time` | Converts a Unix timestamp to a readable date. | `tool time 1714579140` |
-| `tool run-all` | Runs multiple Python files **concurrently**. | `tool run-all script1.py script2.py` |
-| `tool --help` | Shows the auto-generated help menu. | `tool --help` |
+### 1. 📱 QR Code Tool (`qr`)
+Generate, show, or scan QR codes instantly.
+- **Show in Terminal**: `tool qr "https://github.com" -s`
+- **Save to File**: `tool qr "Secret Data" -f code.png`
+- **Parse/Scan**: `tool qr -p screenshot.png`
+
+### 2. 🔐 JWT Tool (`jwt`)
+The Swiss Army knife for JSON Web Tokens.
+- **Decode**: `tool jwt <token>` (Auto-converts `exp`/`iat` to readable dates)
+- **Verify**: `tool jwt <token> -v "your-secret"`
+- **Create**: `tool jwt -C -F payload.json -v "your-secret"`
+- **Algorithm**: Default is HS256, auto-detects for decoding.
+
+### 3. ⏰ Time Tool (`time`)
+Precision time conversion and timestamp generation.
+- **Current Time**: `tool time -n`
+- **Timestamp -> Date**: `tool time -r 1781097394`
+- **Date -> Timestamp**: `tool time -t "2026-12-25"`
+- **Millisecond Precision**: Add `--ms` to any command for 13-digit precision.
+
+### 4. 📄 Converter Tool (`convert`)
+Batch convert documents to PDF without opening heavy apps.
+- **Word to PDF**: `tool convert document.docx`
+- **PowerPoint to PDF**: `tool convert slides.pptx`
+- **Batch Directory**: `tool convert ./my_docs`
+- **Advanced Flags**:
+  - `-d`: Delete original file after successful conversion.
+  - `-e "exclude|these"`: Skip specific files during batch conversion.
+
+### 5. 🔗 URL Parser (`url`)
+Break down complex URLs into readable components.
+- **Usage**: `tool url "https://user:pass@example.com:8080/p/a/t/h?query=1#frag"`
+
+### 6. 🆔 UUID Generator (`uuid`)
+- **Usage**: `tool uuid -n 5`
+
+---
+
+## 🛠️ Advanced Features
+- **Global `-h`**: Use `-h` on any command for specific help and examples.
+- **Grep Friendly**: All outputs use consistent labels (e.g., `QR Data:`, `Unix Timestamp:`) for easy piping.
+- **Mutually Exclusive Flags**: Prevents conflicting commands (e.g., can't parse and generate at the same time).
 
 ---
 
 ## 📂 Project Structure
-
-```text
-dev-tools/
-├── main.py            # Entry point & CLI definitions
-├── modules/           # Logic Modules
-│   ├── crypto.py      # UUID & JWT handling
-│   ├── media.py       # QR Code generation (File & Terminal)
-│   ├── runner.py      # Concurrent subprocess logic
-│   └── utils.py       # Timestamp formatting
-├── venv/              # Isolated Python Environment (Private)
-└── requirements.txt   # Project dependencies
-```
+- [main.py](file:///d:/proj/my-tools/main.py): Entry point & CLI definitions.
+- [modules/crypto.py](file:///d:/proj/my-tools/modules/crypto.py): JWT & UUID logic.
+- [modules/media.py](file:///d:/proj/my-tools/modules/media.py): QR code generation/parsing.
+- [modules/converter.py](file:///d:/proj/my-tools/modules/converter.py): Word/PPT to PDF logic.
+- [modules/utils.py](file:///d:/proj/my-tools/modules/utils.py): URL parsing & Time formatting.
 
 ---
-
-## 🛠️ Tips
-* **QR Codes:** If the terminal QR code is hard to scan, zoom out in your terminal (`Ctrl` + `-`).
-* **Concurrency:** `run-all` is great for testing client-server scripts at the same time without opening two windows.
-* **Adding Features:** To add a new command, create a function in a module and register it in `main.py` using `@cli.command()`.
-
----
-
-**Everything set, bruh!** Is there anything else you want to automate today?
+**Crafted with 🚀 for developers.**
