@@ -99,7 +99,7 @@ def qr(data, show, file_path, parse_path):
 @click.option('-t', '--timestamp', type=str, 
               cls=MutuallyExclusiveOption, mutually_exclusive=['now', 'readable'],
               help="Convert date string to timestamp")
-@click.option('--ms', is_flag=True, help="Use milliseconds for input/output")
+@click.option('-m', '--ms', is_flag=True, help="Use milliseconds for input/output")
 def time(now, readable, timestamp, ms):
     """Time Utilities (Timestamp <-> Readable)."""
     if now:
@@ -107,7 +107,6 @@ def time(now, readable, timestamp, ms):
         ts = n.timestamp()
         ts_val = int(ts * 1000) if ms else int(ts)
         click.echo(f"Unix Timestamp: {ts_val}")
-        
         fmt = '%Y-%m-%d %H:%M:%S'
         if ms:
             fmt += '.%f'
@@ -125,17 +124,19 @@ def time(now, readable, timestamp, ms):
 @cli.command(context_settings=CONTEXT_SETTINGS)
 @click.argument('input', required=False)
 @click.option('-v', '--verify', 'key', type=str, help="Verify JWT signature with a secret key")
-@click.option('-C', '--create', is_flag=True, cls=MutuallyExclusiveOption, mutually_exclusive=['verify'], help="Create a new JWT token")
-@click.option('-F', '--file', type=click.Path(exists=True), help="Read JWT payload from JSON file (for creation)")
+@click.option('-c', '--create', is_flag=True, cls=MutuallyExclusiveOption, mutually_exclusive=['verify'], help="Create a new JWT token")
+@click.option('-f', '--file', type=click.Path(exists=True), help="Read JWT payload from JSON file (for creation)")
+@click.option('-o', '--out', type=click.Path(), help="Write output to JSON file (for decode)")
+@click.option('-s', '--no-show', is_flag=True, help="Suppress console output when saving to file")
 @click.option('-a', '--alg', type=str, default='HS256', help="Algorithm for JWT creation (default: HS256)")
-def jwt(input, key, create, file, alg):
+def jwt(input, key, create, file, out, no_show, alg):
     """
     JWT Parsing, Verification, and Creation.
     
     Use cases:
     - Decode JWT payload: tool jwt <token>
     - Verify JWT: tool jwt <token> -v <secret>
-    - Create JWT: tool jwt -C -F payload.json -v <secret>
+    - Create JWT: tool jwt -c -f payload.json -v <secret>
     """
     try:
         if create:
@@ -152,9 +153,9 @@ def jwt(input, key, create, file, alg):
                 try:
                     payload = json.loads(input)
                 except json.JSONDecodeError:
-                    raise click.UsageError("Input must be valid JSON string or use -F/--file to read from file!")
+                    raise click.UsageError("Input must be valid JSON string or use -f/--file to read from file!")
             else:
-                raise click.UsageError("Need either JSON string or -F/--file to specify payload!")
+                raise click.UsageError("Need either JSON string or -f/--file to specify payload!")
             
             token = crypto.create_jwt(payload, key, alg)
             
@@ -170,7 +171,13 @@ def jwt(input, key, create, file, alg):
             payload = crypto.decode_jwt(input, key)
             if isinstance(payload, dict):
                 enhanced_payload = utils.format_jwt_times(payload)
-                click.echo(json.dumps(enhanced_payload, indent=4))
+                if out:
+                    with open(out, 'w') as f:
+                        json.dump(enhanced_payload, f, indent=4)
+                    if not no_show:
+                        click.echo(f"JSON saved to {out}")
+                if not no_show:
+                    click.echo(json.dumps(enhanced_payload, indent=4))
             else:
                 click.secho(payload, fg='red')
     except Exception as e:
@@ -178,14 +185,22 @@ def jwt(input, key, create, file, alg):
 
 @cli.command(context_settings=CONTEXT_SETTINGS)
 @click.argument('url')
-def url(url):
+@click.option('-o', '--out', type=click.Path(), help="Write output to JSON file")
+@click.option('-s', '--no-show', is_flag=True, help="Suppress console output when saving to file")
+def url(url, out, no_show):
     """Parse URL into components."""
     details = utils.parse_url_details(url)
     if "error" in details:
         click.secho(f"URL Error: {details['error']}", fg='red')
     else:
-        click.echo(f"URL Components:")
-        click.echo(json.dumps(details, indent=4))
+        if out:
+            with open(out, 'w') as f:
+                json.dump(details, f, indent=4)
+            if not no_show:
+                click.echo(f"JSON saved to {out}")
+        if not no_show:
+            click.echo(f"URL Components:")
+            click.echo(json.dumps(details, indent=4))
 
 @cli.command(context_settings=CONTEXT_SETTINGS)
 @click.argument('input_path', type=click.Path(exists=True))

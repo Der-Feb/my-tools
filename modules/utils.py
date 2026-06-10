@@ -1,6 +1,6 @@
 from datetime import datetime
 import dateparser
-from urllib.parse import urlparse
+from urllib.parse import urlparse, parse_qs
 
 def format_timestamp(ts, ms=False):
     """Timestamp to readable string"""
@@ -27,15 +27,21 @@ def string_to_timestamp(date_str, ms=False):
     return "Error: Could not parse date string."
 
 def parse_url_details(url):
-    """Parse URL into its components"""
+    """Parse URL into its components, with query params as nested dict"""
     try:
         parsed = urlparse(url)
+        query_dict = parse_qs(parsed.query, keep_blank_values=True)
+        # Convert lists to single values if only one item
+        for key, value in query_dict.items():
+            if len(value) == 1:
+                query_dict[key] = value[0]
+        
         return {
             "scheme": parsed.scheme,
             "netloc": parsed.netloc,
             "path": parsed.path,
             "params": parsed.params,
-            "query": parsed.query,
+            "query": query_dict,
             "fragment": parsed.fragment,
             "hostname": parsed.hostname,
             "port": parsed.port
