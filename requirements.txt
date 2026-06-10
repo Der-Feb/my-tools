@@ -8,3 +8,4 @@ Pillow
 docx2pdf
 validators
 comtypes
+pyinstaller
